@@ -9,13 +9,16 @@
 namespace CommunicationProtocols {
 namespace Joybus {
 
+const uint dataPin = 15;
+const uint rumblePin = 16;
+
 /**
  * @short Enters the Joybus communication mode
  * 
  * @param dataPin GPIO number of the console data line pin
  * @param func Function to be called to obtain the GCReport to be sent to the console
  */
-void enterMode(int dataPin, std::function<GCReport()> func);
+void enterMode(std::function<GCReport()> func);
 
 }
 }

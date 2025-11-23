@@ -1,7 +1,5 @@
 #include "communication_protocols/joybus.hpp"
 
-#include "global.hpp"
-
 #include "hardware/gpio.h"
 
 #include "hardware/pio.h"
@@ -36,7 +34,7 @@ void convertToPio(const uint8_t *command, const int len, uint32_t *result,
 namespace CommunicationProtocols {
 namespace Joybus {
 
-void enterMode(int dataPin, std::function<GCReport()> func) {
+void enterMode(std::function<GCReport()> func) {
 	gpio_init(dataPin);
 	gpio_set_dir(dataPin, GPIO_IN);
 	gpio_pull_up(dataPin);
