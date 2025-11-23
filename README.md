@@ -1,4 +1,4 @@
-#Sega Mega Drive to GameCube controller adapter
+# Sega Mega Drive to GameCube controller adapter
 
 ## Schematics
 
