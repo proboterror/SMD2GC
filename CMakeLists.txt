@@ -35,6 +35,10 @@ add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/lib/tusb_xinput xinput_host)
 add_executable(
   ${PROJECT_NAME}
   src/main.cpp
+  src/arena_allocator.cpp
+  src/hid_gamecube_mapping.cpp
+  src/hid_parser.cpp
+  src/hid_tests.cpp
   src/sega_mega_drive.cpp
   src/communication_protocols/joybus.cpp
 )

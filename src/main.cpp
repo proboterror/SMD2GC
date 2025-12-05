@@ -7,6 +7,9 @@
 #include "host/usbh.h"
 #include "tusb.h"
 
+#include "hid_parser.h"
+#include "hid_gamecube_mapping.h"
+
 #include "sega_mega_drive.h"
 #include "communication_protocols/joybus.hpp"
 
@@ -19,6 +22,113 @@ const int FREQUENCY_MHZ = 150;
 GCReport globalGCState = defaultGcReport;
 spin_lock_t* shared_data_lock = nullptr;
 bool usb_gamepad_connected = false;
+
+void tuh_hid_mount_cb(uint8_t dev_addr, uint8_t instance,
+					  uint8_t const* desc_report, uint16_t desc_len)
+{
+	TU_LOG1("HID device attached\n");
+
+	if (desc_report)
+	{
+		TU_LOG1("[HID] Using built-in descriptor (%d bytes)\n", desc_len);
+
+		ParseReportDescriptor(desc_report, desc_len, hid_to_gamecube_mapping);
+	}
+	else
+	{
+		TU_LOG1("[HID] Descriptor too large (%d bytes)\n", desc_len);
+	}
+
+	usb_gamepad_connected = true;
+
+	tuh_hid_receive_report(dev_addr, instance); // Queue first report receive
+}
+
+void tuh_hid_umount_cb(uint8_t dev_addr, uint8_t instance)
+{
+	TU_LOG1("HID device removed\n");
+
+	usb_gamepad_connected = false;
+}
+
+GCReport g_gamepad = defaultGcReport;
+
+static void gamepad_callback(uint32_t control_type, uint32_t value)
+{
+	const GamecubeMappings mapping = (GamecubeMappings)control_type;
+
+	const char* gc_controls_names[] = {"A", "B", "X", "Y", "START", "R", "L", "D", "U", "Z", "R", "L", "AXIS_X", "AXIS_Y", "AXIS_CX", "AXIS_CY", "AXIS_L", "AXIS_R"};
+
+	if(control_type < MAP_GAMECUBE_AXIS_X)
+	{
+		TU_LOG2("gamepad_callback: type=%s, value=%d\n", gc_controls_names[control_type], value);
+	}
+
+	if (mapping == MAP_GAMECUBE_BUTTON_A)
+		g_gamepad.a = true;
+	else if(mapping == MAP_GAMECUBE_BUTTON_B)
+		g_gamepad.b = true;
+	else if(mapping == MAP_GAMECUBE_BUTTON_X)
+		g_gamepad.x = true;
+	else if(mapping == MAP_GAMECUBE_BUTTON_Y)
+		g_gamepad.y = true;
+	else if(mapping == MAP_GAMECUBE_BUTTON_START)
+		g_gamepad.start = true;
+	else if(mapping == MAP_GAMECUBE_R)
+		g_gamepad.dRight = true;
+	else if(mapping == MAP_GAMECUBE_L)
+		g_gamepad.dLeft = true;
+	else if(mapping == MAP_GAMECUBE_D)
+		g_gamepad.dDown = true;
+	else if(mapping == MAP_GAMECUBE_U)
+		g_gamepad.dUp = true;
+	else if(mapping == MAP_GAMECUBE_BUTTON_Z)
+		g_gamepad.z = true;
+	else if(mapping == MAP_GAMECUBE_BUTTON_R)
+		g_gamepad.r = true;
+	else if(mapping == MAP_GAMECUBE_BUTTON_L)
+		g_gamepad.l = true;
+	else if(mapping == MAP_GAMECUBE_AXIS_X)
+		g_gamepad.xStick = value;
+	else if(mapping == MAP_GAMECUBE_AXIS_Y)
+		g_gamepad.yStick = value;
+	else if(mapping == MAP_GAMECUBE_AXIS_CX)
+		g_gamepad.cxStick = value;
+	else if(mapping == MAP_GAMECUBE_AXIS_CY)
+		g_gamepad.cyStick = value;
+	else if(mapping == MAP_GAMECUBE_AXIS_L)
+		g_gamepad.analogL = value;
+	else if(mapping == MAP_GAMECUBE_AXIS_R)
+		g_gamepad.analogR = value;
+}
+
+void tuh_hid_report_received_cb(uint8_t dev_addr,
+								uint8_t instance,
+								uint8_t const* report,
+								uint16_t len)
+{
+	g_gamepad = defaultGcReport;
+	ParseReport(report, len, gamepad_callback);
+
+	//spin_lock_unsafe_blocking(shared_data_lock);
+	globalGCState = g_gamepad;
+	//spin_unlock_unsafe(shared_data_lock);
+
+	// Queue the next receive immediately to maintain polling
+	tuh_hid_receive_report(dev_addr, instance);
+}
+
+// Callback invoked when a device is mounted
+void tuh_mount_cb(uint8_t dev_addr)
+{
+	printf("A device with address %d was mounted\r\n", dev_addr);
+}
+
+// Callback invoked when a device is unmounted
+void tuh_umount_cb(uint8_t dev_addr)
+{
+	printf("A device with address %d was unmounted\r\n", dev_addr);
+}
 
 GCReport getControllerState()
 {
@@ -59,10 +169,10 @@ void tuh_xinput_report_received_cb(uint8_t dev_addr, uint8_t instance, xinputh_i
 	{
 		switch (xid_itf->type)
 		{
-			case 1: type_str = "Xbox One"; break;
+			case 1: type_str = "Xbox One";          break;
 			case 2: type_str = "Xbox 360 Wireless"; break;
-			case 3: type_str = "Xbox 360 Wired"; break;
-			case 4: type_str = "Xbox OG"; break;
+			case 3: type_str = "Xbox 360 Wired";    break;
+			case 4: type_str = "Xbox OG";           break;
 			default: type_str = "Unknown";
 		}
 
@@ -79,7 +189,7 @@ void tuh_xinput_report_received_cb(uint8_t dev_addr, uint8_t instance, xinputh_i
 			gc.x = (buttons & XINPUT_GAMEPAD_X) != 0;
 			gc.y = (buttons & XINPUT_GAMEPAD_Y) != 0;
 			gc.start = (buttons & (XINPUT_GAMEPAD_START | XINPUT_GAMEPAD_GUIDE)) != 0;
-
+			
 			gc.dLeft = (buttons & XINPUT_GAMEPAD_DPAD_LEFT) != 0;
 			gc.dRight = (buttons & XINPUT_GAMEPAD_DPAD_RIGHT) != 0;
 			gc.dDown = (buttons & XINPUT_GAMEPAD_DPAD_DOWN) != 0;
@@ -88,11 +198,11 @@ void tuh_xinput_report_received_cb(uint8_t dev_addr, uint8_t instance, xinputh_i
 			static const uint8_t TRIGGER_CLICK_TRESHOLD = 32;
 
 			gc.l = pad->bLeftTrigger > TRIGGER_CLICK_TRESHOLD;
-			gc.r = pad->bRightTrigger > TRIGGER_CLICK_TRESHOLD;
-			//gc.l = (buttons & XINPUT_GAMEPAD_LEFT_SHOULDER) != 0;
+			gc.r = pad->bRightTrigger > TRIGGER_CLICK_TRESHOLD;	
+	        //gc.l = (buttons & XINPUT_GAMEPAD_LEFT_SHOULDER) != 0;
 			//gc.r = (buttons & XINPUT_GAMEPAD_RIGHT_SHOULDER) != 0;
 			gc.z = (buttons & XINPUT_GAMEPAD_RIGHT_SHOULDER) != 0;
-
+			
 			gc.xStick = int16_to_u8_biased(pad->sThumbLX);
 			gc.yStick = int16_to_u8_biased(pad->sThumbLY);
 			gc.cxStick = int16_to_u8_biased(pad->sThumbRX);
@@ -160,12 +270,12 @@ int main()
 
 	printf("SMD2GC Sega Mega Drive / USB HID to GameCube adapter\nhttps://github.com/proboterror/SMD2GC\n");
 
-	uint lock_num = spin_lock_claim_unused(true); // Low-level: returns uint ID; panic if none free
+	uint lock_num = spin_lock_claim_unused(true);  // Low-level: returns uint ID; panic if none free
 	if (lock_num == (uint)-1) // No free locks (rare, but check)
 	{
 		panic("No free spinlocks available!");
 	}
-	shared_data_lock = spin_lock_init(lock_num); // High-level: convert uint to spin_lock_t*
+	shared_data_lock = spin_lock_init(lock_num);   // High-level: convert uint to spin_lock_t*
 
 	multicore_launch_core1(core1_main);
 
