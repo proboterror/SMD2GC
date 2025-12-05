@@ -173,5 +173,5 @@ Hard way:
 ## Credits
 - [Julien Bernard](https://github.com/JulienBernard3383279/pico-rectangle) - Joybus protocol (Gamecube controller) implementation for the Raspberry Pi Pico
 - [riguetti](https://github.com/riguetti/RP2040-Zero-gamecube-controller) - unused code cleanup
-- [Andrew Tait](https://github.com/rasteri) - USB HID descriptors and reports parsing code
+- [Andrew Tait](https://github.com/rasteri/HIDman) - USB HID descriptors and reports parsing code
 - [Ryzee119](https://github.com/Ryzee119/tusb_xinput) - Xbox/Xinpit controllers support module for TinyUSB library
