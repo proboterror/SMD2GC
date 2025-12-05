@@ -1204,14 +1204,6 @@
 		(uuid "0368e76f-070f-4be6-8cd9-96b25ffad123")
 	)
 	(no_connect
-		(at 36.83 43.18)
-		(uuid "0395f858-e2fe-4ae5-93f1-4f7cf02fb973")
-	)
-	(no_connect
-		(at 36.83 53.34)
-		(uuid "135849df-4806-4586-b09e-cb7e5e7a60a7")
-	)
-	(no_connect
 		(at 36.83 50.8)
 		(uuid "150dc907-1ce4-4745-b12e-6e9382017bad")
 	)
@@ -1232,12 +1224,20 @@
 		(uuid "5c0deb59-bd7a-4284-8f72-091e4438b646")
 	)
 	(no_connect
+		(at 36.83 40.64)
+		(uuid "69a1c6f4-46cc-44c5-ad78-26b584426fd3")
+	)
+	(no_connect
 		(at 54.61 55.88)
 		(uuid "7e561658-fc3b-4718-9e0b-4e18a11d4ccd")
 	)
 	(no_connect
 		(at 54.61 53.34)
 		(uuid "9245236a-13b4-463a-bbc2-5aa3b2b3f8e8")
+	)
+	(no_connect
+		(at 36.83 48.26)
+		(uuid "ae64524c-8cc2-4875-9199-8e2564dd006f")
 	)
 	(no_connect
 		(at 54.61 35.56)
@@ -1250,10 +1250,6 @@
 	(no_connect
 		(at 54.61 50.8)
 		(uuid "ebe43c9a-dd4c-4645-8ea7-c09e0b335f91")
-	)
-	(no_connect
-		(at 71.12 29.21)
-		(uuid "ef72e6d1-19c8-4e88-b93f-c43d87c2ada8")
 	)
 	(no_connect
 		(at 83.82 50.8)
@@ -1348,17 +1344,6 @@
 			(justify right)
 		)
 		(uuid "fb024ed3-300d-43ba-9f9c-744904a0db58")
-	)
-	(label "GND"
-		(at 36.83 48.26 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "104995a2-bef5-462e-a517-c59588f8e79e")
 	)
 	(label "SMD_D5"
 		(at 83.82 48.26 0)
@@ -1482,7 +1467,7 @@
 		(uuid "6c247f37-d6a5-4f0b-801c-bab58af1f15a")
 	)
 	(label "GND"
-		(at 36.83 50.8 0)
+		(at 36.83 53.34 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1490,7 +1475,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "6e8c3018-58b6-4423-97e0-3146fe9db5bf")
+		(uuid "6c994735-1e23-4585-9223-cad500c943e4")
 	)
 	(label "SMD_D2"
 		(at 114.3 45.72 180)
@@ -1536,17 +1521,6 @@
 		)
 		(uuid "9dc4998a-5b26-4f8b-b585-50097aa4ec4b")
 	)
-	(label "3V3"
-		(at 36.83 40.64 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "a3fd0668-0164-4375-bf1d-2e13af8b2607")
-	)
 	(label "SMD_D4"
 		(at 83.82 45.72 0)
 		(fields_autoplaced yes)
@@ -1557,17 +1531,6 @@
 			(justify left bottom)
 		)
 		(uuid "c4492536-1b98-43e8-98f1-56b97d2e883c")
-	)
-	(label "N{slash}C"
-		(at 36.83 53.34 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "cb1b48c5-4596-46c7-896f-895c49548499")
 	)
 	(label "5V"
 		(at 36.83 43.18 0)
@@ -1612,6 +1575,17 @@
 			(justify right bottom)
 		)
 		(uuid "f4a2994f-d6ae-4bf8-b5ca-8b991d8db4f1")
+	)
+	(label "5V"
+		(at 71.12 29.21 90)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "f8074719-58ea-42d1-9729-4eaf2a725dee")
 	)
 	(label "SMD_D3"
 		(at 114.3 50.8 180)
