@@ -52,7 +52,7 @@ void enterMode(std::function<GCReport()> func) {
 	sm_config_set_in_pins(&config, dataPin);
 	sm_config_set_out_pins(&config, dataPin, 1);
 	sm_config_set_set_pins(&config, dataPin, 1);
-	sm_config_set_clkdiv(&config, 5);
+	sm_config_set_clkdiv(&config, 6); // Keep pio clock to 150 / 6 = 25 MHz
 	sm_config_set_out_shift(&config, true, false, 32);
 	sm_config_set_in_shift(&config, false, true, 8);
 

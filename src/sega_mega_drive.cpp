@@ -52,7 +52,7 @@ void initSegaMegaDrive()
 	{
 		gpio_init(pin);
 		gpio_set_dir(pin, GPIO_IN);
-		gpio_disable_pulls(pin);
+		gpio_pull_up(pin); // For correct controller presence detection.
 	}
 
 	// SMD SEl pin
