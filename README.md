@@ -53,7 +53,7 @@ gc.dRight = (buttons & XINPUT_GAMEPAD_DPAD_RIGHT);
 gc.dDown = (buttons & XINPUT_GAMEPAD_DPAD_DOWN);
 gc.dUp = (buttons & XINPUT_GAMEPAD_DPAD_UP);
 
-static const uint8_t TRIGGER_CLICK_TRESHOLD = 32;
+const uint8_t TRIGGER_CLICK_TRESHOLD = 32;
 gc.l = pad->bLeftTrigger > TRIGGER_CLICK_TRESHOLD
 gc.r = pad->bRightTrigger > TRIGGER_CLICK_TRESHOLD;
 
@@ -142,7 +142,7 @@ Button 0x0D - PS button
 Button 0x0E - Touchpad button
 ```
 
-#Input lag
+# Input lag / latency
 For Sega Mega Drive 6 buttons pad delay mostly defined by GameCube controller JoyBus speed if queried once per frame:<br>
 3 bytes console request + 8 bytes response @250kbps: protocol delay ~0.35 ms.
 
