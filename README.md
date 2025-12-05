@@ -18,8 +18,8 @@ DualShock 4 / Xbox One / Series controllers are recommended.
 - DB9 Male connector
 - 12 wires (approx. 60 mm each)
 
-# Buttons mapping
-## Sega Mega Drive 6-button pad
+## Buttons mapping
+### Sega Mega Drive 6-button pad
 src/sega_mega_drive.cpp:
 ```
 gc.a = smd.a;
@@ -38,7 +38,7 @@ gc.dDown = smd.down
 gc.dUp = smd.up
 gcReport.z = smd.mode
 ```
-## Xbox controllers
+### Xbox controllers
 src/main.c:
 ```
 gc.a = (buttons & XINPUT_GAMEPAD_A);
@@ -69,7 +69,7 @@ gc.analogL = pad->bLeftTrigger;
 gc.analogR = pad->bRightTrigger;
 ```
 
-## Standard USB HID controllers
+### Standard USB HID controllers
 src/hid_gamecube_mapping.cpp:
 ```
 REPORT_USAGE_PAGE_BUTTON, 1, MAP_GAMECUBE_BUTTON_Y // Square -> Y
@@ -142,7 +142,7 @@ Button 0x0D - PS button
 Button 0x0E - Touchpad button
 ```
 
-# Input lag / latency
+## Input lag / latency
 For Sega Mega Drive 6 buttons pad delay mostly defined by GameCube controller JoyBus speed if queried once per frame:<br>
 3 bytes console request + 8 bytes response @250kbps: protocol delay ~0.35 ms.
 
