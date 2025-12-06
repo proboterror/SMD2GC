@@ -91,11 +91,11 @@ static void gamepad_callback(uint32_t control_type, uint32_t value)
 	else if(mapping == MAP_GAMECUBE_AXIS_X)
 		g_gamepad.xStick = value;
 	else if(mapping == MAP_GAMECUBE_AXIS_Y)
-		g_gamepad.yStick = value;
+		g_gamepad.yStick = UINT8_MAX - value;
 	else if(mapping == MAP_GAMECUBE_AXIS_CX)
 		g_gamepad.cxStick = value;
 	else if(mapping == MAP_GAMECUBE_AXIS_CY)
-		g_gamepad.cyStick = value;
+		g_gamepad.cyStick = UINT8_MAX - value;
 	else if(mapping == MAP_GAMECUBE_AXIS_L)
 		g_gamepad.analogL = value;
 	else if(mapping == MAP_GAMECUBE_AXIS_R)
