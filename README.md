@@ -6,7 +6,7 @@ USB gamepads support can be limited because of GameCube controller port does not
 
 Bluetooth dongles are not supported unless they emulate standard USB HID device.
 
-DualShock 4 / Xbox One / Series controllers are recommended.
+DualShock 3 / DualShock 4 / Xbox One / Series controllers are recommended.
 
 ## Schematics
 
@@ -69,7 +69,7 @@ gc.analogL = pad->bLeftTrigger;
 gc.analogR = pad->bRightTrigger;
 ```
 
-### Standard USB HID controllers
+### Standard USB HID controllers (DualShock 4)
 src/hid_gamecube_mapping.cpp:
 ```
 REPORT_USAGE_PAGE_BUTTON, 1, MAP_GAMECUBE_BUTTON_Y // Square -> Y
@@ -89,10 +89,10 @@ REPORT_USAGE_PAGE_BUTTON, 10, MAP_GAMECUBE_BUTTON_START // Options -> Start
 
 // Left analog
 REPORT_USAGE_X, MAP_GAMECUBE_AXIS_X // LX
-REPORT_USAGE_Y, MAP_GAMECUBE_AXIS_Y // LY
+REPORT_USAGE_Y, MAP_GAMECUBE_AXIS_Y // LY, inverted
 // Right analog
-REPORT_USAGE_Z, MAP_GAMECUBE_AXIS_CX // RX
-REPORT_USAGE_Rz, MAP_GAMECUBE_AXIS_CY // RY
+REPORT_USAGE_Z, MAP_GAMECUBE_AXIS_CX // RX 
+REPORT_USAGE_Rz, MAP_GAMECUBE_AXIS_CY // RY, inverted
 // Analog left/right triggers
 REPORT_USAGE_Rx, MAP_GAMECUBE_AXIS_L // LT / R2
 REPORT_USAGE_Ry, MAP_GAMECUBE_AXIS_R // RT / R2
@@ -140,6 +140,33 @@ Button 0x0B - L3 button
 Button 0x0C - R3 button
 Button 0x0D - PS button
 Button 0x0E - Touchpad button
+```
+
+### DualShock 3
+```
+gc.a = ps3->button_cross;
+gc.b = ps3->button_circle;
+gc.x = ps3->button_triangle;
+gc.y = ps3->button_square;
+gc.start = ps3->button_start;
+
+gc.dLeft = ps3->dpad_left;
+gc.dRight = ps3->dpad_right;
+gc.dDown = ps3->dpad_down;
+gc.dUp = ps3->dpad_up;
+
+const uint8_t TRIGGER_CLICK_TRESHOLD = 32;
+gc.l = ps3->trigger_l2_analog > TRIGGER_CLICK_TRESHOLD;
+gc.r = ps3->trigger_r2_analog > TRIGGER_CLICK_TRESHOLD;
+
+gc.z = ps3->trigger_r1;
+
+gc.xStick = ps3->joy_left_x;
+gc.yStick = UINT8_MAX - ps3->joy_left_y;
+gc.cxStick = ps3->joy_right_x;
+gc.cyStick = UINT8_MAX - ps3->joy_right_y;
+gc.analogL = ps3->trigger_l2_analog;
+gc.analogR = ps3->trigger_r2_analog;
 ```
 
 ## Input lag / latency
