@@ -10,6 +10,8 @@
 #include "hid_parser.h"
 #include "hid_gamecube_mapping.h"
 
+#include "ps3.h"
+
 #include "sega_mega_drive.h"
 #include "communication_protocols/joybus.hpp"
 
@@ -19,24 +21,53 @@
 // 125 MHz with pio divider set to 5 working with DualShock 4, Xbox Series Model 1914 Controller; Xbox 360 controller unstable, DualSense attachment not detected (VBUS below 5V issue).
 const int FREQUENCY_MHZ = 150;
 
+const uint8_t TRIGGER_CLICK_TRESHOLD = 32;
+
 GCReport globalGCState = defaultGcReport;
 spin_lock_t* shared_data_lock = nullptr;
 bool usb_gamepad_connected = false;
+
+enum usb_hid_device_type
+{
+	USB_HID_DEVICE_NONE,
+	USB_HID_DEVICE_STANDARD,
+	USB_HID_DEVICE_DUALSHOCK3
+};
+
+usb_hid_device_type g_device_type[CFG_TUH_DEVICE_MAX] = {};
 
 void tuh_hid_mount_cb(uint8_t dev_addr, uint8_t instance,
 					  uint8_t const* desc_report, uint16_t desc_len)
 {
 	TU_LOG1("HID device attached\n");
 
-	if (desc_report)
-	{
-		TU_LOG1("[HID] Using built-in descriptor (%d bytes)\n", desc_len);
+	uint16_t vid, pid;
+    tuh_vid_pid_get(dev_addr, &vid, &pid);
 
-		ParseReportDescriptor(desc_report, desc_len, hid_to_gamecube_mapping);
+	if(ps3_usb_match(vid, pid))
+	{
+		if(ps3_usb_init(dev_addr, instance))
+			g_device_type[dev_addr] = USB_HID_DEVICE_DUALSHOCK3;
+		else
+			return;
 	}
 	else
 	{
-		TU_LOG1("[HID] Descriptor too large (%d bytes)\n", desc_len);
+		if (desc_report)
+		{
+			TU_LOG1("[HID] Using built-in descriptor (%d bytes)\n", desc_len);
+
+			if(ParseReportDescriptor(desc_report, desc_len, hid_to_gamecube_mapping))
+				g_device_type[dev_addr] = USB_HID_DEVICE_STANDARD;
+			else
+				return;
+		}
+		else
+		{
+			TU_LOG1("[HID] Descriptor too large (%d bytes)\n", desc_len);
+
+			return;
+		}
 	}
 
 	usb_gamepad_connected = true;
@@ -47,6 +78,8 @@ void tuh_hid_mount_cb(uint8_t dev_addr, uint8_t instance,
 void tuh_hid_umount_cb(uint8_t dev_addr, uint8_t instance)
 {
 	TU_LOG1("HID device removed\n");
+
+	g_device_type[dev_addr] = USB_HID_DEVICE_NONE;
 
 	usb_gamepad_connected = false;
 }
@@ -96,7 +129,7 @@ static void gamepad_callback(uint32_t control_type, uint32_t value)
 		g_gamepad.cxStick = value;
 	else if(mapping == MAP_GAMECUBE_AXIS_CY)
 		g_gamepad.cyStick = UINT8_MAX - value;
-	else if(mapping == MAP_GAMECUBE_AXIS_L)
+	else if(mapping == MAP_GAMECUBE_AXIS_L) // Note: DualShock 4 / DualSence also maps to L2/R2 triggers press
 		g_gamepad.analogL = value;
 	else if(mapping == MAP_GAMECUBE_AXIS_R)
 		g_gamepad.analogR = value;
@@ -107,12 +140,49 @@ void tuh_hid_report_received_cb(uint8_t dev_addr,
 								uint8_t const* report,
 								uint16_t len)
 {
-	g_gamepad = defaultGcReport;
-	ParseReport(report, len, gamepad_callback);
+	if(g_device_type[dev_addr] == USB_HID_DEVICE_DUALSHOCK3)
+	{
+		ps3_hid_report_t* ps3 = ps3_usb_parse_report(report, len);
 
-	//spin_lock_unsafe_blocking(shared_data_lock);
+		if(ps3 == nullptr)
+			return;
+		
+		g_gamepad = defaultGcReport;
+
+		g_gamepad.a = ps3->button_cross;
+		g_gamepad.b = ps3->button_circle;
+		g_gamepad.x = ps3->button_triangle;
+		g_gamepad.y = ps3->button_square;
+		g_gamepad.start = ps3->button_start;
+		
+		g_gamepad.dLeft = ps3->dpad_left;
+		g_gamepad.dRight = ps3->dpad_right;
+		g_gamepad.dDown = ps3->dpad_down;
+		g_gamepad.dUp = ps3->dpad_up;
+
+		g_gamepad.l = ps3->trigger_l2_analog > TRIGGER_CLICK_TRESHOLD;
+		g_gamepad.r = ps3->trigger_r2_analog > TRIGGER_CLICK_TRESHOLD;	
+		//g_gamepad.l = ps3->trigger_l1;
+		//g_gamepad.r = ps3->trigger_r1;
+		g_gamepad.z = ps3->trigger_r1;
+		
+		g_gamepad.xStick = ps3->joy_left_x;
+		g_gamepad.yStick = UINT8_MAX - ps3->joy_left_y;
+		g_gamepad.cxStick = ps3->joy_right_x;
+		g_gamepad.cyStick = UINT8_MAX - ps3->joy_right_y;
+		g_gamepad.analogL = ps3->trigger_l2_analog;
+		g_gamepad.analogR = ps3->trigger_r2_analog;
+	}
+	else
+	{
+		g_gamepad = defaultGcReport;
+	
+		ParseReport(report, len, gamepad_callback);
+	}
+
+	spin_lock_unsafe_blocking(shared_data_lock);
 	globalGCState = g_gamepad;
-	//spin_unlock_unsafe(shared_data_lock);
+	spin_unlock_unsafe(shared_data_lock);
 
 	// Queue the next receive immediately to maintain polling
 	tuh_hid_receive_report(dev_addr, instance);
@@ -134,9 +204,9 @@ GCReport getControllerState()
 {
 	if(usb_gamepad_connected)
 	{
-		//spin_lock_unsafe_blocking(shared_data_lock);
+		spin_lock_unsafe_blocking(shared_data_lock);
 		GCReport report = globalGCState;
-		//spin_unlock_unsafe(shared_data_lock);
+		spin_unlock_unsafe(shared_data_lock);
 		return report;
 	}
 	else
@@ -195,11 +265,9 @@ void tuh_xinput_report_received_cb(uint8_t dev_addr, uint8_t instance, xinputh_i
 			gc.dDown = (buttons & XINPUT_GAMEPAD_DPAD_DOWN) != 0;
 			gc.dUp = (buttons & XINPUT_GAMEPAD_DPAD_UP) != 0;
 
-			static const uint8_t TRIGGER_CLICK_TRESHOLD = 32;
-
 			gc.l = pad->bLeftTrigger > TRIGGER_CLICK_TRESHOLD;
 			gc.r = pad->bRightTrigger > TRIGGER_CLICK_TRESHOLD;	
-	        //gc.l = (buttons & XINPUT_GAMEPAD_LEFT_SHOULDER) != 0;
+			//gc.l = (buttons & XINPUT_GAMEPAD_LEFT_SHOULDER) != 0;
 			//gc.r = (buttons & XINPUT_GAMEPAD_RIGHT_SHOULDER) != 0;
 			gc.z = (buttons & XINPUT_GAMEPAD_RIGHT_SHOULDER) != 0;
 			
@@ -210,9 +278,9 @@ void tuh_xinput_report_received_cb(uint8_t dev_addr, uint8_t instance, xinputh_i
 			gc.analogL = pad->bLeftTrigger;
 			gc.analogR = pad->bRightTrigger;
 
-			//spin_lock_unsafe_blocking(shared_data_lock);
+			spin_lock_unsafe_blocking(shared_data_lock);
 			globalGCState = gc;
-			//spin_unlock_unsafe(shared_data_lock);
+			spin_unlock_unsafe(shared_data_lock);
 		}
 	}
 

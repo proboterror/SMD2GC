@@ -18,12 +18,12 @@ struct __attribute__((packed)) GCReport {
 	uint8_t r :1;
 	uint8_t l :1;
 	uint8_t pad1 :1;
-	uint8_t xStick;
-	uint8_t yStick;
-	uint8_t cxStick;
-	uint8_t cyStick;
-	uint8_t analogL;
-	uint8_t analogR;
+	uint8_t xStick; // 0 = Left, 255 = Right
+	uint8_t yStick; // 0 = Down, 255 = Up
+	uint8_t cxStick; // 0 = Left, 255 = Right
+	uint8_t cyStick; // 0 = Down, 255 = Up
+	uint8_t analogL; // 0 = Released, 255 = Fully Pressed
+	uint8_t analogR; // 0 = Released, 255 = Fully Pressed
 };
 
 

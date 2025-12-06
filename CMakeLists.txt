@@ -39,6 +39,7 @@ add_executable(
   src/hid_gamecube_mapping.cpp
   src/hid_parser.cpp
   src/hid_tests.cpp
+  src/ps3.cpp
   src/sega_mega_drive.cpp
   src/communication_protocols/joybus.cpp
 )
