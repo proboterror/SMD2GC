@@ -144,36 +144,36 @@ void tuh_hid_report_received_cb(uint8_t dev_addr,
 	{
 		ps3_hid_report_t* ps3 = ps3_usb_parse_report(report, len);
 
-		if(ps3 == nullptr)
-			return;
-		
-		g_gamepad = defaultGcReport;
+		if(ps3)
+		{
+			g_gamepad = defaultGcReport;
 
-		g_gamepad.a = ps3->button_cross;
-		g_gamepad.b = ps3->button_circle;
-		g_gamepad.x = ps3->button_triangle;
-		g_gamepad.y = ps3->button_square;
-		g_gamepad.start = ps3->button_start;
-		
-		g_gamepad.dLeft = ps3->dpad_left;
-		g_gamepad.dRight = ps3->dpad_right;
-		g_gamepad.dDown = ps3->dpad_down;
-		g_gamepad.dUp = ps3->dpad_up;
+			g_gamepad.a = ps3->button_cross;
+			g_gamepad.b = ps3->button_circle;
+			g_gamepad.x = ps3->button_triangle;
+			g_gamepad.y = ps3->button_square;
+			g_gamepad.start = ps3->button_start;
+			
+			g_gamepad.dLeft = ps3->dpad_left;
+			g_gamepad.dRight = ps3->dpad_right;
+			g_gamepad.dDown = ps3->dpad_down;
+			g_gamepad.dUp = ps3->dpad_up;
 
-		g_gamepad.l = ps3->trigger_l2_analog > TRIGGER_CLICK_TRESHOLD;
-		g_gamepad.r = ps3->trigger_r2_analog > TRIGGER_CLICK_TRESHOLD;	
-		//g_gamepad.l = ps3->trigger_l1;
-		//g_gamepad.r = ps3->trigger_r1;
-		g_gamepad.z = ps3->trigger_r1;
-		
-		g_gamepad.xStick = ps3->joy_left_x;
-		g_gamepad.yStick = UINT8_MAX - ps3->joy_left_y;
-		g_gamepad.cxStick = ps3->joy_right_x;
-		g_gamepad.cyStick = UINT8_MAX - ps3->joy_right_y;
-		g_gamepad.analogL = ps3->trigger_l2_analog;
-		g_gamepad.analogR = ps3->trigger_r2_analog;
+			g_gamepad.l = ps3->trigger_l2_analog > TRIGGER_CLICK_TRESHOLD;
+			g_gamepad.r = ps3->trigger_r2_analog > TRIGGER_CLICK_TRESHOLD;	
+			//g_gamepad.l = ps3->trigger_l1;
+			//g_gamepad.r = ps3->trigger_r1;
+			g_gamepad.z = ps3->trigger_r1;
+			
+			g_gamepad.xStick = ps3->joy_left_x;
+			g_gamepad.yStick = UINT8_MAX - ps3->joy_left_y;
+			g_gamepad.cxStick = ps3->joy_right_x;
+			g_gamepad.cyStick = UINT8_MAX - ps3->joy_right_y;
+			g_gamepad.analogL = ps3->trigger_l2_analog;
+			g_gamepad.analogR = ps3->trigger_r2_analog;
+		}
 	}
-	else
+	else if (g_device_type[dev_addr] = USB_HID_DEVICE_STANDARD)
 	{
 		g_gamepad = defaultGcReport;
 	
