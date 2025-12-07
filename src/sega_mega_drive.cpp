@@ -1,6 +1,8 @@
 #include <array>
 
-#include "communication_protocols/joybus/gcReport.hpp"
+#include "pico/stdlib.h"
+
+#include "sega_mega_drive.h"
 
 /*
 	GPIO pins connection to Sega Mega Drive Controller DB9 Male connector:
@@ -8,33 +10,15 @@
 	DB9 pin  1  2  3  4  6  9  7   8   5
 	GPIO pin 0  1  2  3  4  5  7   GND 3V3
 */
-constexpr uint SMD_DATA_PIN0 = 0;
-constexpr uint SMD_DATA_PIN1 = 1;
-constexpr uint SMD_DATA_PIN2 = 2;
-constexpr uint SMD_DATA_PIN3 = 3;
-constexpr uint SMD_DATA_PIN4 = 4;
-constexpr uint SMD_DATA_PIN5 = 5;
-constexpr uint SMD_SELECT_PIN = 7;
+constexpr uint8_t SMD_DATA_PIN0 = 0;
+constexpr uint8_t SMD_DATA_PIN1 = 1;
+constexpr uint8_t SMD_DATA_PIN2 = 2;
+constexpr uint8_t SMD_DATA_PIN3 = 3;
+constexpr uint8_t SMD_DATA_PIN4 = 4;
+constexpr uint8_t SMD_DATA_PIN5 = 5;
+constexpr uint8_t SMD_SELECT_PIN = 7;
 
-struct __attribute__((packed)) smd_state
-{
-	uint16_t connected : 1,
-	six_buttons : 1,
-	a : 1,
-	b : 1,
-	c : 1,
-	x : 1,
-	y : 1,
-	z : 1,
-	start : 1,
-	mode :1,
-	up : 1,
-	down : 1,
-	left : 1,
-	right : 1;
-};
-
-struct smd_state smd;
+smd_state_t smd;
 
 void initSegaMegaDrive()
 {
@@ -69,10 +53,8 @@ void initSegaMegaDrive()
 	Questionable:
 	https://segaretro.org/Sega_Mega_Drive/Control_pad_inputs
 */
-GCReport getSegaMegaDriveReport()
+smd_state_t getSegaMegaDriveReport()
 {
-	GCReport gcReport = defaultGcReport;
-
 	static uint32_t last_update_time = 0;
 	uint32_t current_time = time_us_32();
 
@@ -153,20 +135,5 @@ GCReport getSegaMegaDriveReport()
 		}
 	}
 
-	gcReport.a = smd.a;
-	gcReport.b = smd.b;
-	gcReport.x = smd.x;
-	gcReport.y = smd.y;
-	gcReport.l = smd.z;
-	gcReport.r = smd.c;
-
-	gcReport.start = smd.start;
-
-	gcReport.dLeft = smd.left;
-	gcReport.dRight = smd.right;
-	gcReport.dDown = smd.down;
-	gcReport.dUp = smd.up;
-	gcReport.z = smd.mode;
-
-	return gcReport;
+	return smd;
 }

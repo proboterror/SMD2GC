@@ -211,7 +211,26 @@ GCReport getControllerState()
 	}
 	else
 	{
-		return getSegaMegaDriveReport();
+		const smd_state_t smd = getSegaMegaDriveReport();
+
+		GCReport gcReport = defaultGcReport;
+
+		gcReport.a = smd.a;
+		gcReport.b = smd.b;
+		gcReport.x = smd.x;
+		gcReport.y = smd.y;
+		gcReport.l = smd.z;
+		gcReport.r = smd.c;
+
+		gcReport.start = smd.start;
+
+		gcReport.dLeft = smd.left;
+		gcReport.dRight = smd.right;
+		gcReport.dDown = smd.down;
+		gcReport.dUp = smd.up;
+		gcReport.z = smd.mode;
+
+		return gcReport;
 	}
 }
 
