@@ -19,6 +19,8 @@ DualShock 3 / DualShock 4 / Xbox One / Series controllers are recommended.
 - 12 wires (approx. 60 mm each)
 
 ## Buttons mapping
+A/B, X/Y buttons mapping for USB gamepads matches Xbox controllers layout (reverse SNES A/B, X/Y).
+
 ### Sega Mega Drive 6-button pad
 src/sega_mega_drive.cpp:
 ```
@@ -72,10 +74,10 @@ gc.analogR = pad->bRightTrigger;
 ### Standard USB HID controllers (DualShock 4)
 src/hid_gamecube_mapping.cpp:
 ```
-REPORT_USAGE_PAGE_BUTTON, 1, MAP_GAMECUBE_BUTTON_Y // Square -> Y
+REPORT_USAGE_PAGE_BUTTON, 1, MAP_GAMECUBE_BUTTON_X // Square -> X
 REPORT_USAGE_PAGE_BUTTON, 2, MAP_GAMECUBE_BUTTON_A // Cross -> A
 REPORT_USAGE_PAGE_BUTTON, 3, MAP_GAMECUBE_BUTTON_B // Circle -> B
-REPORT_USAGE_PAGE_BUTTON, 4, MAP_GAMECUBE_BUTTON_X // Triangle -> X
+REPORT_USAGE_PAGE_BUTTON, 4, MAP_GAMECUBE_BUTTON_Y // Triangle -> Y
 
 REPORT_USAGE_PAGE_BUTTON, 6, MAP_GAMECUBE_BUTTON_Z // R1
 
@@ -146,8 +148,8 @@ Button 0x0E - Touchpad button
 ```
 gc.a = ps3->button_cross;
 gc.b = ps3->button_circle;
-gc.x = ps3->button_triangle;
-gc.y = ps3->button_square;
+gc.x = ps3->button_square;
+gc.y = ps3->button_triangle;
 gc.start = ps3->button_start;
 
 gc.dLeft = ps3->dpad_left;
