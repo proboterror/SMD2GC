@@ -150,8 +150,8 @@ void tuh_hid_report_received_cb(uint8_t dev_addr,
 
 			g_gamepad.a = ps3->button_cross;
 			g_gamepad.b = ps3->button_circle;
-			g_gamepad.x = ps3->button_triangle;
-			g_gamepad.y = ps3->button_square;
+			g_gamepad.x = ps3->button_square;
+			g_gamepad.y = ps3->button_triangle;
 			g_gamepad.start = ps3->button_start;
 			
 			g_gamepad.dLeft = ps3->dpad_left;
