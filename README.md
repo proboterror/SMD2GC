@@ -1,12 +1,23 @@
 # Sega Mega Drive to GameCube controller adapter
 
-Also supports Xbox controllers (Xbox One / Series) and standard USB HID gamepads (with layout similar to PS4 DualShock 4) with USB Type-C OTG adapter.
+Also supports Xbox controllers (Xbox 360 / One / Series) and standard USB HID gamepads (with layout similar to PS4 DualShock 4) with USB Type-C OTG adapter.
 
-USB gamepads support can be limited because of GameCube controller port does not provide sufficient +5V power (Xbox 360 USB pad unstable, PS5 DualSense not working).
+USB gamepads support can be limited because of GameCube controller port does not provide sufficient +5V power (PS5 DualSense not working).
 
 Bluetooth dongles are not supported unless they emulate standard USB HID device.
 
 DualShock 3 / DualShock 4 / Xbox One / Series controllers are recommended.
+
+Tested with USB controlers:
+
+|Model|State|
+|-----|-----|
+|Xbox 360 USB|Working|
+|Xbox One Model 1537|Working|
+|Xbox Series Model 1914|Working|
+|PS3 DualShock 3 CECHZC2R|Working|
+|PS4 DualShock 4 CUH-ZCT1E|Working|
+|PS5 DualSense CFI-ZCT1W|Not working<br>Unsufficient power|
 
 ## Schematics
 
@@ -16,7 +27,7 @@ DualShock 3 / DualShock 4 / Xbox One / Series controllers are recommended.
 - GameCube controller replacement cable
 - WaveShare RP2040-Zero board
 - DB9 Male connector
-- 12 wires (approx. 60 mm each)
+- 12 wires (approx. 60 mm each); 3 wires for USB pads only
 
 ## Buttons mapping
 A/B, X/Y buttons mapping for USB gamepads matches Xbox controllers layout (reverse SNES A/B, X/Y).
