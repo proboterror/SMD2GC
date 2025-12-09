@@ -33,7 +33,7 @@ Tested with USB controlers:
 A/B, X/Y buttons mapping for USB gamepads matches Xbox controllers layout (reverse SNES A/B, X/Y).
 
 ### Sega Mega Drive 6-button pad
-src/sega_mega_drive.cpp:
+src/main.cpp:
 ```
 gc.a = smd.a;
 gc.b = smd.b;
@@ -49,7 +49,7 @@ gc.dLeft = smd.left;
 gc.dRight = smd.right
 gc.dDown = smd.down
 gc.dUp = smd.up
-gcReport.z = smd.mode
+gc.z = smd.mode
 ```
 ### Xbox controllers
 src/main.c:
